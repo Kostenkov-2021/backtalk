@@ -231,6 +231,7 @@ import com.google.android.accessibility.talkback.speech.SpeechCacheController;
 import com.google.android.accessibility.talkback.speech.VoiceProfileNames;
 import com.google.android.accessibility.talkback.speechbubble.DisableTalkBackDialog;
 import com.google.android.accessibility.talkback.migration.AppIdHandOver;
+import com.google.android.accessibility.talkback.speechcontrol.SpeechControl;
 import com.google.android.accessibility.talkback.status.StatusReader;
 import com.google.android.accessibility.talkback.training.OnboardingInitiator;
 import com.google.android.accessibility.talkback.training.TutorialInitiator;
@@ -963,6 +964,7 @@ public class TalkBackService extends AccessibilityServiceCompat
       scriptHost.shutdown();
       scriptHost = null;
     }
+    SpeechControl.detach();
 
     if (audioDeviceRouter != null) {
       audioDeviceRouter.shutdown();
@@ -4073,6 +4075,9 @@ public class TalkBackService extends AccessibilityServiceCompat
   }
 
   private void startScripts() {
+    if (pipeline != null && speechController != null) {
+      SpeechControl.attach(this, pipeline.getFeedbackReturner(), speechController);
+    }
     if (scriptHost != null || pipeline == null || !UserManagerCompat.isUserUnlocked(this)) {
       return;
     }
