@@ -164,6 +164,10 @@
       Description: Explains what sending long text as phrases does, and why to turn it off. [CHAR LIMIT=NONE]
     -->
     <string name="summary_pref_speak_in_phrases">For speech engines that are slow to stop, such as Gryphon, so swiping away stops long text at once. Many engines pause longer between sentences sent separately, so leave this off if yours stops quickly.</string>
+    <!-- Title of the setting that turns speech off while another app records with the microphone. [CHAR LIMIT=NONE] -->
+    <string name="title_pref_mute_speech_while_recording">Turn speech off while recording</string>
+    <!-- Summary of the setting that turns speech off while another app records with the microphone. [CHAR LIMIT=NONE] -->
+    <string name="summary_pref_mute_speech_while_recording">When an app starts recording without headphones connected, speech turns off so that it is not recorded, and comes back when the recording stops. Turn it back on sooner with the gesture to turn speech on or off.</string>
     <!--
       Source: Title for the "switch languages" toggle.
       Description: When on, text that an app marks as another language is spoken in that language. [CHAR LIMIT=NONE]

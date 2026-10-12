@@ -29,12 +29,14 @@ import android.telephony.TelephonyManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.VisibleForTesting;
 import com.google.android.accessibility.talkback.monitor.CallStateMonitor;
+import com.google.android.accessibility.utils.SharedPreferencesUtils;
 import com.google.android.accessibility.utils.monitor.AudioPlaybackMonitor;
 import com.google.android.accessibility.utils.monitor.HeadphoneStateMonitor;
 import com.google.android.accessibility.utils.monitor.MediaRecorderMonitor;
 import com.google.android.accessibility.utils.monitor.MediaRecorderMonitor.MicrophoneStateChangedListener;
 import com.google.android.accessibility.utils.monitor.SpeechStateMonitor;
 import com.google.android.accessibility.utils.monitor.VoiceActionDelegate;
+import com.google.android.accessibility.utils.output.SpeechController;
 import com.google.android.libraries.accessibility.utils.log.LogUtils;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -63,6 +65,8 @@ public class VoiceActionMonitor implements VoiceActionDelegate {
   private final SpeechStateMonitor speechStateMonitor;
 
   private boolean skipInterruption = true;
+  // Speech was turned off because a recording started, so it comes back on when the recording ends.
+  private boolean mutedForRecording = false;
 
   /** Defines voice action sources that would interrupt TalkBack audio. */
   @IntDef({
@@ -78,13 +82,33 @@ public class VoiceActionMonitor implements VoiceActionDelegate {
       new MicrophoneStateChangedListener() {
         @Override
         public void onMicrophoneActivated() {
-          if (!isHeadphoneOn()) {
+          if (isHeadphoneOn()) {
+            return;
+          }
+          if (isListeningForVoice()) {
             interruptTalkBackAudio(MEDIA_RECORDER);
+            return;
+          }
+          // A recording, which Backtalk speaks through unless the user asked for quiet.
+          SpeechController speech = service.getSpeechController();
+          if (speech != null && !speech.isMute() && mutesSpeechWhileRecording()) {
+            speech.toggleVoiceFeedback();
+            mutedForRecording = true;
           }
         }
 
         @Override
-        public void onMicrophoneDeactivated() {}
+        public void onMicrophoneDeactivated() {
+          if (!mutedForRecording) {
+            return;
+          }
+          mutedForRecording = false;
+          SpeechController speech = service.getSpeechController();
+          // Unless the user turned speech back on during the recording.
+          if (speech != null && speech.isMute()) {
+            speech.toggleVoiceFeedback();
+          }
+        }
       };
 
   private final AudioPlaybackMonitor.AudioPlaybackStateChangedListener
@@ -154,9 +178,26 @@ public class VoiceActionMonitor implements VoiceActionDelegate {
     return audioPlaybackMonitor.isAudioPlaybackActive() || speechStateMonitor.isSpeaking();
   }
 
-  /** Returns {@code true} if microphone is active and the user is not using a headset. */
+  /**
+   * Returns {@code true} if speech would be heard by voice input, such as dictation or voice
+   * commands, and the user is not using a headset. A plain recording doesn't count: Backtalk
+   * silenced only some of its speech during one, which seemed random, so it speaks through unless
+   * the user turns on muting speech while recording.
+   */
   public boolean isMicrophoneActiveAndHeadphoneOff() {
-    return isMicrophoneActive() && !isHeadphoneOn();
+    return isListeningForVoice() && !isHeadphoneOn();
+  }
+
+  private boolean isListeningForVoice() {
+    return mediaRecorderMonitor.isVoiceRecognitionActive() || speechStateMonitor.isListening();
+  }
+
+  private boolean mutesSpeechWhileRecording() {
+    return SharedPreferencesUtils.getBooleanPref(
+        SharedPreferencesUtils.getSharedPreferences(service),
+        service.getResources(),
+        R.string.pref_mute_speech_while_recording_key,
+        R.bool.pref_mute_speech_while_recording_default);
   }
 
   /**
