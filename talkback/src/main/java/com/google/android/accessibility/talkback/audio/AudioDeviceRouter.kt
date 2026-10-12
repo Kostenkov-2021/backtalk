@@ -246,7 +246,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
         clearDeviceRouting(am)
       }
       is AudioTarget.PhoneSpeaker -> {
-        val speaker = findSpeakerDevice(am)
+        val speaker = speakerToForce(am)
         if (speaker != null) {
           startKeepAlive(speaker)
           setDeviceRouting(am, speaker, forceSpeakerOn = true)
@@ -589,7 +589,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
     val am = audioManager ?: return null
     return when (val target = currentTarget) {
       is AudioTarget.SystemDefault -> null
-      is AudioTarget.PhoneSpeaker -> findSpeakerDevice(am)
+      is AudioTarget.PhoneSpeaker -> speakerToForce(am)
       is AudioTarget.AnyExternal -> findExternalDevice(am)
       is AudioTarget.SpecificDevice -> findSpecificDevice(am, target) ?: findExternalDevice(am)
     }
@@ -669,6 +669,15 @@ class AudioDeviceRouter @JvmOverloads constructor(
     return allDevices.find { it.isSink && it.type == AudioDeviceInfo.TYPE_BUILTIN_SPEAKER }
       ?: allDevices.find { it.isSink && it.type == AudioDeviceInfo.TYPE_BUILTIN_EARPIECE }
   }
+
+  /**
+   * The speaker to route to, only while headphones or another external output would take the sound
+   * otherwise. Routing goes through the communication route, which plays on the speaker with the
+   * speakerphone's tuning, noticeably quieter than the speaker as the system default. With nothing
+   * external connected, the system default is already the speaker.
+   */
+  private fun speakerToForce(am: AudioManager): AudioDeviceInfo? =
+    if (findExternalDevice(am) != null) findSpeakerDevice(am) else null
 
   @VisibleForTesting
   fun findExternalDevice(am: AudioManager): AudioDeviceInfo? {
