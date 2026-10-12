@@ -28,6 +28,8 @@ import android.media.AudioDeviceInfo
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioPlaybackConfiguration
+import android.media.AudioRecordingConfiguration
+import android.media.MediaRecorder
 import android.media.AudioTrack
 import android.os.Build
 import android.os.Handler
@@ -95,6 +97,11 @@ class AudioDeviceRouter @JvmOverloads constructor(
   private var lastEnsureRoutingTimeMs: Long = 0L
   @Volatile private var isRoutingActive: Boolean = false
   @Volatile private var isPhoneCallActive: Boolean = false
+  // Another app is listening the way a call or a voice assistant does, such as Gemini. It needs the
+  // communication device, so holding it on the speaker left Gemini unable to hear the user.
+  @Volatile private var isVoiceInputActive: Boolean = false
+  private val stepsAside: Boolean
+    get() = isPhoneCallActive || isVoiceInputActive
   private var keepAliveTrack: AudioTrack? = null
 
   private var speakerphoneSetByUs = false
@@ -114,6 +121,18 @@ class AudioDeviceRouter @JvmOverloads constructor(
         Log.i(TAG, "Other playback changed (count=$count), re-asserting routing")
         isRoutingActive = false
         scheduleReassertion()
+      }
+    }
+
+  private val recordingCallback =
+    object : AudioManager.AudioRecordingCallback() {
+      override fun onRecordingConfigChanged(configs: MutableList<AudioRecordingConfiguration>?) {
+        val active = isVoiceInput(configs)
+        if (active == isVoiceInputActive) return
+        isVoiceInputActive = active
+        Log.i(TAG, "Voice input ${if (active) "started" else "stopped"} in another app")
+        applyRouting()
+        if (!active) scheduleReassertion()
       }
     }
 
@@ -202,6 +221,8 @@ class AudioDeviceRouter @JvmOverloads constructor(
     registerCommunicationDeviceListener(am)
     registerBroadcastReceiver()
     am.registerAudioPlaybackCallback(playbackCallback, mainHandler)
+    isVoiceInputActive = isVoiceInput(am.activeRecordingConfigurations)
+    am.registerAudioRecordingCallback(recordingCallback, mainHandler)
 
     isMonitoring = true
     applyRouting()
@@ -211,7 +232,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
   /** Re-evaluates and applies audio routing according to the selected target. */
   fun applyRouting() {
     val am = audioManager ?: return
-    if (isPhoneCallActive) {
+    if (stepsAside) {
       stopKeepAlive()
       clearDeviceRouting(am)
       return
@@ -263,7 +284,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
    */
   fun ensureRouting() {
     if (currentTarget == AudioTarget.SystemDefault) return
-    if (isPhoneCallActive) return
+    if (stepsAside) return
     val now = SystemClock.uptimeMillis()
     // If routing is actively verified, throttle to avoid redundant queries.
     // If routing was dropped, bypass throttle immediately!
@@ -274,7 +295,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
 
   private fun ensureRoutingInternal(force: Boolean) {
     if (currentTarget == AudioTarget.SystemDefault) return
-    if (isPhoneCallActive) return
+    if (stepsAside) return
     val am = audioManager ?: return
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -460,7 +481,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
 
   private fun handleCommunicationDeviceChanged(device: AudioDeviceInfo?) {
     if (currentTarget == AudioTarget.SystemDefault) return
-    if (isPhoneCallActive) return
+    if (stepsAside) return
     val am = audioManager ?: return
     val targetDevice = getTargetAudioDevice()
     if (targetDevice != null && (device == null || device.id != targetDevice.id)) {
@@ -544,6 +565,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
       audioDeviceCallback?.let { am.unregisterAudioDeviceCallback(it) }
       unregisterCommunicationDeviceListener(am)
       am.unregisterAudioPlaybackCallback(playbackCallback)
+      am.unregisterAudioRecordingCallback(recordingCallback)
       clearDeviceRouting(am)
     }
     unregisterBroadcastReceiver()
@@ -696,6 +718,18 @@ class AudioDeviceRouter @JvmOverloads constructor(
     @JvmStatic
     var instance: AudioDeviceRouter? = null
       private set
+
+    /**
+     * Whether an app is listening as a call or a voice assistant does. A voice recorder, which uses
+     * the plain microphone, worked all along, so it doesn't count.
+     */
+    @VisibleForTesting
+    @JvmStatic
+    fun isVoiceInput(configs: List<AudioRecordingConfiguration>?): Boolean =
+      configs.orEmpty().any {
+        it.clientAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION ||
+          it.clientAudioSource == MediaRecorder.AudioSource.VOICE_RECOGNITION
+      }
 
     /** Checks whether an [AudioDeviceInfo] represents an external device. */
     fun isExternalDevice(device: AudioDeviceInfo): Boolean {
