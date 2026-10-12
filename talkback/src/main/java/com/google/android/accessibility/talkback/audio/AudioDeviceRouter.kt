@@ -42,6 +42,7 @@ import androidx.core.content.ContextCompat
 import androidx.preference.ListPreference
 import com.google.android.accessibility.talkback.R
 import com.google.android.accessibility.utils.SharedPreferencesUtils
+import com.google.android.accessibility.utils.output.FailoverTextToSpeech
 import com.google.android.libraries.accessibility.utils.log.LogUtils
 
 /**
@@ -175,6 +176,8 @@ class AudioDeviceRouter @JvmOverloads constructor(
           R.string.pref_audio_output_device_default,
         )
       currentTarget = AudioTarget.parse(savedPref)
+      // Nothing is routed yet, whatever a previous run left behind.
+      setRouteForced(false)
       Log.i(TAG, "AudioDeviceRouter initialized with target: $currentTarget (raw pref: '$savedPref')")
       prefs.registerOnSharedPreferenceChangeListener(prefChangeListener)
     } catch (e: Exception) {
@@ -420,6 +423,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
       // Do NOT call track.setVolume(0.0f)! The PCM buffer is already 100% zeros (silence).
       track.play()
       keepAliveTrack = track
+      setRouteForced(true)
       Log.i(
         TAG,
         "Keep-alive audio track started (playState=${track.playState}, maintaining active playback state in AudioDeviceBroker)",
@@ -432,6 +436,7 @@ class AudioDeviceRouter @JvmOverloads constructor(
   private fun stopKeepAlive() {
     val track = keepAliveTrack ?: return
     keepAliveTrack = null
+    setRouteForced(false)
     try {
       if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
         track.stop()
@@ -440,6 +445,18 @@ class AudioDeviceRouter @JvmOverloads constructor(
       Log.i(TAG, "Keep-alive audio track stopped")
     } catch (e: Exception) {
       Log.e(TAG, "Error stopping keep-alive audio track", e)
+    }
+  }
+
+  /**
+   * Tells speech and sounds whether Backtalk routes them, while the keep-alive track plays. Only
+   * accessibility audio follows the route, so they use the accessibility stream then, and the
+   * user's choice of stream otherwise.
+   */
+  private fun setRouteForced(forced: Boolean) {
+    val prefs = SharedPreferencesUtils.getSharedPreferences(context)
+    if (prefs.getBoolean(FailoverTextToSpeech.PREF_ROUTE_FORCED_KEY, false) != forced) {
+      prefs.edit().putBoolean(FailoverTextToSpeech.PREF_ROUTE_FORCED_KEY, forced).apply()
     }
   }
 
