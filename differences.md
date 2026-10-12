@@ -407,6 +407,10 @@ Touch returns to Backtalk when a dialog appears, another app opens on top of the
 
 By default, the keyboard area keeps working with Backtalk. For a game that draws its own keyboard, open the actions menu on the game in the **Apps** list and choose **Turn on direct typing**.
 
+### Self-voicing keyboards
+
+A keyboard that speaks for itself, such as Advanced Braille Keyboard, needs your touches in every app, not only in games. Turn it on in the **Apps** list, and while it shows, touches on it go straight to it in any app, and the rest of the screen stays with Backtalk.
+
 ### Quick settings tile
 
 To pause and resume direct touch without leaving your game, add the **Direct touch** tile to quick settings.
