@@ -249,6 +249,7 @@ import com.google.android.accessibility.talkback.utils.SpeechRecognizerPerformer
 import com.google.android.accessibility.talkback.utils.TalkbackFeatureSupport;
 import com.google.android.accessibility.talkback.utils.VerbosityPreferences;
 import com.google.android.accessibility.utils.AccessibilityEventListener;
+import com.google.android.accessibility.utils.monitor.RecentUserInput;
 import com.google.android.accessibility.utils.AccessibilityEventUtils;
 import com.google.android.accessibility.utils.AccessibilityNodeInfoUtils;
 import com.google.android.accessibility.utils.BuildVersionUtils;
@@ -1106,6 +1107,10 @@ public class TalkBackService extends AccessibilityServiceCompat
     if (directTouchController != null) {
       directTouchController.onAccessibilityEvent(event);
     }
+    if (eventType == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START
+        || eventType == AccessibilityEvent.TYPE_TOUCH_INTERACTION_END) {
+      RecentUserInput.mark();
+    }
     if (eventType == AccessibilityEvent.TYPE_TOUCH_INTERACTION_START) {
       // TODO: Could move the logic of TOUCH_INTERACTION related event handling out of
       // TalkBackService, and concentrated in a dedicated module such as ?
@@ -1329,6 +1334,9 @@ public class TalkBackService extends AccessibilityServiceCompat
 
   /** Handles a key event and returns whether it should be considered consumed. */
   protected boolean onKeyEventInternal(KeyEvent keyEvent) {
+    if (keyEvent.getAction() == KeyEvent.ACTION_DOWN) {
+      RecentUserInput.mark();
+    }
     if (pauseController != null) {
       // While paused, keys pass to apps except the ones that resume Backtalk.
       Boolean handled = pauseController.onKeyEvent(keyEvent);
