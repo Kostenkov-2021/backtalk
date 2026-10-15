@@ -343,8 +343,7 @@ class DirectTouchController(
     }
     return windows.filter { window ->
       window.type == AccessibilityWindowInfo.TYPE_INPUT_METHOD &&
-        window.root?.packageName?.toString()?.let { DirectTouchSettings.isAppEnabled(prefs, it) } ==
-          true
+        rootPackage(window)?.let { DirectTouchSettings.isAppEnabled(prefs, it) } == true
     }
   }
 
