@@ -48,6 +48,7 @@
         <ignore regexp="phonetic_letters_mode_after_letter_no_delay" />
         <ignore regexp="phonetic_letters_mode_instead_of_letter" />
         <ignore regexp="individual_sound_screen_on" />
+        <ignore regexp="individual_sound_rotor_" />
         <ignore regexp="theme_sound_none" />
         <ignore regexp="theme_sound_summary_no_sound" />
         <ignore regexp="theme_sound_action_set_none" />

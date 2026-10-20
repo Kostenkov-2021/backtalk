@@ -22,6 +22,8 @@
   <string name="individual_sound_formatting">Formátovaný text</string>
   <string name="individual_sound_screen_off">Obrazovka vypnutá</string>
   <string name="individual_sound_screen_on">Obrazovka zapnutá</string>
+  <string name="individual_sound_rotor_next">Další nastavení</string>
+  <string name="individual_sound_rotor_previous">Předchozí nastavení</string>
   <string name="individual_sound_loading">Načítání</string>
   <string name="individual_sound_browse_mode_on">Režim procházení zapnut</string>
   <string name="individual_sound_browse_mode_off">Režim procházení vypnut</string>

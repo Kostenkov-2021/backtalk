@@ -55,6 +55,8 @@ object IndividualFeedbackSettings {
       FeedbackItem("formatting", R.string.individual_sound_formatting),
       FeedbackItem("screen_off", R.string.individual_sound_screen_off),
       FeedbackItem("screen_on", R.string.individual_sound_screen_on),
+      FeedbackItem("rotor_next", R.string.individual_sound_rotor_next),
+      FeedbackItem("rotor_previous", R.string.individual_sound_rotor_previous),
       FeedbackItem("loading", R.string.individual_sound_loading),
       FeedbackItem("browse_mode_on_v4_2", R.string.individual_sound_browse_mode_on),
       FeedbackItem("browse_mode_off_v4_2", R.string.individual_sound_browse_mode_off),

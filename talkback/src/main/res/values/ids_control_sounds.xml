@@ -19,4 +19,6 @@
     <item name="control_list_item" type="id" />
     <item name="control_tree_item" type="id" />
     <item name="screen_on" type="id" />
+    <item name="rotor_next" type="id" />
+    <item name="rotor_previous" type="id" />
 </resources>

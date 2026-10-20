@@ -140,6 +140,8 @@ play is left out when the theme is installed, and Backtalk says so.
 | `formatting` | Formatted text |
 | `screen_off` | Screen off |
 | `screen_on` | Screen on (plays no sound by default in the Backtalk theme) |
+| `rotor_next` | Next setting, as when you turn the two-finger rotor clockwise (plays no sound by default in the Backtalk theme) |
+| `rotor_previous` | Previous setting, as when you turn the two-finger rotor counterclockwise (plays no sound by default in the Backtalk theme) |
 | `loading` | Loading |
 | `browse_mode_on_v4_2` | Browse mode on |
 | `browse_mode_off_v4_2` | Browse mode off |
