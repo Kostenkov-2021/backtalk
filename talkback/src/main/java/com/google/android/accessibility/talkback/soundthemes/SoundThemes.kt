@@ -127,7 +127,7 @@ object SoundThemes {
   private const val TAG = "SoundThemes"
 
   /** The formats Android can play, as file extensions. */
-  val EXTENSIONS = setOf("wav", "ogg", "oga", "opus", "mp3", "flac", "m4a", "aac")
+  val EXTENSIONS = setOf("wav", "ogg", "oga", "opus", "mp3", "flac", "m4a", "aac", "mid", "midi")
 
   /** License, readme and credits files, which stay with the theme when it is shared again. */
   private val DOCUMENT = Regex("(license|licence|copying|readme|notice|authors|credits)(\\.(txt|md))?")

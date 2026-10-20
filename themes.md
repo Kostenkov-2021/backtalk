@@ -118,7 +118,7 @@ Every field is optional.
 ### Sounds
 
 Name each sound file after one of these, with the extension of its format. WAV, OGG, MP3, FLAC,
-M4A, AAC and Opus all work, up to 5 MB each and 50 MB for the whole theme. A file Android can't
+M4A, AAC, Opus and MIDI all work, up to 5 MB each and 50 MB for the whole theme. A file Android can't
 play is left out when the theme is installed, and Backtalk says so.
 
 | Name | Plays for |
