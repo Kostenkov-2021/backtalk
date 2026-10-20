@@ -6,6 +6,7 @@
       Keep MissingTranslation enabled globally and suppress it only for these exact resources.
     -->
     <issue id="MissingTranslation">
+        <ignore regexp="settings_backup_" />
         <ignore regexp="title_pref_mute_speech_while_recording" />
         <ignore regexp="summary_pref_mute_speech_while_recording" />
         <ignore regexp="title_pref_category_feedback" />
