@@ -37,6 +37,12 @@ object SoundVibrations {
       "screen_on",
       "rotor_next",
       "rotor_previous",
+      "keyboard_show",
+      "keyboard_hide",
+      "direct_touch_enter",
+      "direct_touch_exit",
+      "wrap_forward",
+      "wrap_back",
     )
 
   /**

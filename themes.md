@@ -142,6 +142,12 @@ play is left out when the theme is installed, and Backtalk says so.
 | `screen_on` | Screen on (plays no sound by default in the Backtalk theme) |
 | `rotor_next` | Next setting, as when you turn the two-finger rotor clockwise (plays no sound by default in the Backtalk theme) |
 | `rotor_previous` | Previous setting, as when you turn the two-finger rotor counterclockwise (plays no sound by default in the Backtalk theme) |
+| `keyboard_show` | On-screen keyboard shown (plays no sound by default in the Backtalk theme) |
+| `keyboard_hide` | On-screen keyboard hidden (plays no sound by default in the Backtalk theme) |
+| `direct_touch_enter` | Direct touch turned on (plays no sound by default in the Backtalk theme) |
+| `direct_touch_exit` | Direct touch turned off (plays no sound by default in the Backtalk theme) |
+| `wrap_forward` | Moving forward wrapped to the first item (plays no sound by default in the Backtalk theme) |
+| `wrap_back` | Moving back wrapped to the last item (plays no sound by default in the Backtalk theme) |
 | `loading` | Loading |
 | `browse_mode_on_v4_2` | Browse mode on |
 | `browse_mode_off_v4_2` | Browse mode off |

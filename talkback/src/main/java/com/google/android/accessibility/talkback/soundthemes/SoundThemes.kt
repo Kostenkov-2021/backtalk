@@ -226,7 +226,19 @@ object SoundThemes {
   const val ROTOR_PREVIOUS = "rotor_previous"
 
   /** The sounds that Backtalk has none of its own for, so that they play only from a theme. */
-  @JvmField val THEME_ONLY: Set<String> = setOf(SCREEN_ON, ROTOR_NEXT, ROTOR_PREVIOUS)
+  @JvmField
+  val THEME_ONLY: Set<String> =
+    setOf(
+      SCREEN_ON,
+      ROTOR_NEXT,
+      ROTOR_PREVIOUS,
+      "keyboard_show",
+      "keyboard_hide",
+      "direct_touch_enter",
+      "direct_touch_exit",
+      "wrap_forward",
+      "wrap_back",
+    )
 
   /** The sound files of [theme], by item key. */
   @JvmStatic
